@@ -22,7 +22,7 @@ class bjCog(commands.Cog):
     for arg in args:
       if arg.startswith('decks='):
         try:
-          deck_count = int(arg[5:]) if int(arg[5:]) else None
+          deck_count = int(arg[6:]) if int(arg[6:]) else None
           break
         except:
           pass
