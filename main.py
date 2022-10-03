@@ -16,10 +16,7 @@ async def on_ready():
 
 async def main():
   async with bot:
-    try:
-      token = getenv('TOKEN')
-    except:
-      token = jsonfuncs.get_from_db('bot_token.json', 'TOKEN')
+    token = getenv('TOKEN') if getenv('TOKEN') else jsonfuncs.get_from_db('bot_token.json', 'TOKEN')
       
     await bot.load_extension('yahtzeecommands')
     await bot.load_extension('misccommands')
