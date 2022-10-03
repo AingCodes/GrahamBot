@@ -3,11 +3,17 @@ from discord.ext import commands
 import asyncio
 import logging
 import jsonfuncs
+from os import getenv
 
 logging.basicConfig(level=logging.INFO)
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents, help_command=None)
+
+try:
+  token = getenv('TOKEN')
+except:
+  token = jsonfuncs.get_from_db('bot_token.json', 'TOKEN')
 
 @bot.event
 async def on_ready():
@@ -18,7 +24,7 @@ async def main():
     await bot.load_extension('yahtzeecommands')
     await bot.load_extension('misccommands')
     await bot.load_extension('bjcommands')
-    await bot.start(jsonfuncs.get_from_db('bot_token.json', 'TOKEN'))
+    await bot.start(token)
     
 
 asyncio.run(main())

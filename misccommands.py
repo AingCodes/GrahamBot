@@ -4,6 +4,15 @@ import games
 import yahtzee
 import players
 import jsonfuncs
+from ifttt_webhook import IftttWebhook
+from os import getenv
+
+try:
+  webkey = getenv('IFTTT_KEY')
+except:
+  webkey = jsonfuncs.get_from_db('bot_token.json', 'IFTTT_KEY')
+
+ifttt = IftttWebhook(webkey)
 
 async def setup(bot):
   await bot.add_cog(miscCog(bot))
@@ -95,3 +104,10 @@ class miscCog(commands.Cog):
     except:
       jsonfuncs.update_db('bank_of_graham.json', user_id, 1000)
       await ctx.send(f"<@{ctx.author.id}> Your balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
+
+
+  @commands.command()
+  async def changelights(self, ctx, colour):
+    global ifttt
+    ifttt.trigger('changecolour', value1=colour)
+    
