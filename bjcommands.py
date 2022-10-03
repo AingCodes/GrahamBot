@@ -78,7 +78,7 @@ class bjCog(commands.Cog):
       return
 
   @commands.command()
-  async def abort(ctx):
+  async def abort(self, ctx):
     for game in games.game_list:
       if (isinstance(game, games.bjgame) and
           str(ctx.author.id) in game.players and
