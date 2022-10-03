@@ -100,11 +100,7 @@ class miscCog(commands.Cog):
 
   @commands.command()
   async def changelights(self, ctx, colour):
-    try:
-      webkey = getenv('IFTTT_KEY')
-    except:
-      webkey = jsonfuncs.get_from_db('bot_token.json', 'IFTTT_KEY')
-
+    webkey = getenv('IFTTT_KEY') if getenv('IFTTT_KEY') else jsonfuncs.get_from_db('bot_token.json', 'IFTTT_KEY')
     ifttt = IftttWebhook(webkey)
     ifttt.trigger('changecolour', value1=colour)
     
