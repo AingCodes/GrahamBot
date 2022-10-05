@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from collections import defaultdict
 
 def get_name(user):
   name = user.nick if user.nick else user.name
@@ -12,12 +13,13 @@ def cvt_member(ctx, tag):
 
 def create_buttons(**kwargs):
   view = discord.ui.View()
+  inputs = defaultdict(None, kwargs)
   items = [
     discord.ui.Button(
-      custom_id=kwargs['ids'][i],
-      label=kwargs['labels'][i] if kwargs['labels'] else None,
-      emoji=kwargs['emojis'][i] if kwargs['emojis'] else None,
-    ) for i, x in enumerate(kwargs['ids'])
+      custom_id=inputs['ids'],
+      label=inputs['labels'],
+      emoji=inputs['emojis'],
+    ) for i in inputs
   ]
   for item in items:
     view.add_item(item)
