@@ -6,7 +6,7 @@ import players
 import jsonfuncs
 from ifttt_webhook import IftttWebhook
 from os import getenv
-from misc import create_buttons
+from misc import create_buttons, cvt_member
 
 async def setup(bot):
   await bot.add_cog(miscCog(bot))
@@ -86,13 +86,14 @@ class miscCog(commands.Cog):
           print("Unable to add/remove role")
 
   @commands.command()
-  async def balance(self, ctx, *member: discord.Member):
+  async def balance(self, ctx, member=None):
+    member = await cvt_member(ctx, member) if member else None
     user_id = str(member.id if isinstance(member, discord.Member) else ctx.author.id)
     try:
-      await ctx.send(f"<@{ctx.author.id}> your balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
+      await ctx.send(f"<@{user_id}>'s balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
     except:
       jsonfuncs.update_db('bank_of_graham.json', user_id, 1000)
-      await ctx.send(f"<@{ctx.author.id}> Your balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
+      await ctx.send(f"<@{user_id}>'s balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
 
   @commands.command()
   async def changelights(self, ctx, colour):
