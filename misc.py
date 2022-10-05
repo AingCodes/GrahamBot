@@ -13,7 +13,7 @@ def cvt_member(ctx, tag):
 
 def create_buttons(**kwargs):
   view = discord.ui.View()
-  inputs = defaultdict(None, kwargs)
+  inputs = defaultdict(lambda: None, kwargs)
   items = [
     discord.ui.Button(
       custom_id=inputs['ids'],
