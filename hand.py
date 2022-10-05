@@ -9,7 +9,7 @@ class hand:
     rank = self.cards[card_number][:-2]
     if rank == 'A':
       value = 11
-    elif rank in ['J', 'Q', 'K']:
+    elif rank in ('J', 'Q', 'K'):
       value = 10
     else:
       value = int(rank)

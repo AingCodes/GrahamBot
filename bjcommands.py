@@ -86,5 +86,3 @@ class bjCog(commands.Cog):
          ):
         games.game_list.remove(game)
         await ctx.send(f"The blackjack game involving {get_name(ctx.author)} was aborted.")
-      else:
-        return

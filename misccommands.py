@@ -85,7 +85,7 @@ class miscCog(commands.Cog):
         else:
           print("Unable to add/remove role")
 
-  @commands.command()
+  @commands.command(name='balance', aliases=('b', 'bal'))
   async def balance(self, ctx, member=None):
     member = await cvt_member(ctx, member) if member else ctx.author
     user_id = str(member.id if isinstance(member, discord.Member) else ctx.author.id)

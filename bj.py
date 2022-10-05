@@ -129,9 +129,13 @@ async def run(ctx, bot, game):
   names = ', '.join([player.name for player in game.players.values()])
 
   # Waits for each player to submit a wager
-  await ctx.send(f"Blackjack game started for {names}! Please enter a wager.")
-  await bot.wait_for('command_completion', check = lambda x: len(game.wagers) ==       len(game.players) or game not in games.game_list)
-
+  wager_msg_content = [f"Blackjack game started for {names}! Please enter a wager.", "Bankrolls:"]
+  for player in game.players.values():
+    wager_msg_content.append(f"{player.name}: {player.bankroll}")
+  wager_msg = await ctx.send("\n".join(wager_msg_content))
+  await bot.wait_for('command_completion', check = lambda x: len(game.wagers) == len(game.players) or game not in games.game_list)
+  wager_msg.delete()
+  
   # Ends the function if the game was aborted
   if game not in games.game_list:
     return
@@ -250,7 +254,7 @@ async def run(ctx, bot, game):
   for player in game.players.values():
     for index, _hand in enumerate(player.hands):
       result, reward = resolve_hand(_hand, player, game)
-      results.append(f"{player.name}'s {nth[index]} hand {'got a blackjack!' if result == 'blackjack' else result}! {'Won' if result in ['won', 'blackjack'] else 'Refunded' if result == 'pushed' else 'Lost'} {-reward if result in ['lost', 'bust', 'surrendered'] else reward} Grahams.")
+      results.append(f"{player.name}'s {nth[index]} hand {'got a blackjack!' if result == 'blackjack' else result}! {'Won' if result in ('won', 'blackjack') else 'Refunded' if result == 'pushed' else 'Lost'} {-reward if result in ('lost', 'bust', 'surrendered') else reward} Grahams.")
     if player.insured:
       result, reward = check_insurance(player, game)
       results.append(f"{player.name}'s insurance bet {result}! {'Won' if result == 'won' else 'lost'} {reward} Grahams!")
