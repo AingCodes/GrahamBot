@@ -1,7 +1,8 @@
 class hand:
+  __slots__ = ('cards', 'value', 'status')
+
   def __init__(self):
     self.cards = []
-    self.value = 0
     self.status = 'active'
 
   def card_value(self, card_number):

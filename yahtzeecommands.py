@@ -22,8 +22,8 @@ class yahtzeeCog(commands.Cog):
     game.players[str(ctx.author.id)] = players.yahtzeeplayer(str(ctx.author.id), get_name(ctx.author))
     
     # Creates a message you can interact with to join, start or cancel the game
-    labels = ['Join/Unjoin', 'Start Game', 'Cancel Game']
-    ids = ['join', 'start', 'cancel']
+    labels = ('Join/Unjoin', 'Start Game', 'Cancel Game')
+    ids = ('join', 'start', 'cancel')
     view = create_buttons(labels=labels, ids=ids)
     initial_message = await ctx.send(f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}", view=view)
 

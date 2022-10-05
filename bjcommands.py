@@ -30,7 +30,7 @@ class bjCog(commands.Cog):
     if not deck_count:
       deck_count = 4
 
-    members = [cvt_member(ctx, tag) for tag in args if tag.startswith('<@')]
+    members = (cvt_member(ctx, tag) for tag in args if tag.startswith('<@'))
         
     name_list.extend([get_name(member) for member in members])
     id_list.extend([str(member.id) for member in members])

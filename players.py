@@ -3,12 +3,14 @@ import hand
 import jsonfuncs
 
 class yahtzeeplayer:
+  __slots__ = ('id', 'name', 'dice', 'held', 'roll_amount', 'active', 'scoresheet')
+
   def __init__(self, id, name):
     self.id = id
     self.name = name
     self.dice = [random.randint(1,6) for i in range(5)]
     self.held = [False, False, False, False, False]
-    self.rollAmount = 0
+    self.roll_amount = 0
     self.active = True
     self.scoresheet = {
       'Aces': '',
@@ -30,14 +32,13 @@ class yahtzeeplayer:
     }
 
 class bjplayer:
+  __slots__ = ('name', 'id', 'hands', 'insured', 'bankroll', 'wager', 'total_bet')
   def __init__(self, name, id):
     self.name = name
     self.id = id
     self.hands = [hand.hand()]
     self.insured = False
     self.bankroll = self.set_bankroll()
-    self.wager = 0
-    self.total_bet = 0
 
   def set_bankroll(self):
     try:

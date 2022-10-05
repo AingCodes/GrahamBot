@@ -18,8 +18,8 @@ class miscCog(commands.Cog):
   @commands.command()
   async def help(self, ctx):
     view = discord.ui.View()
-    main_labels = ['Roles', 'Games', 'Bank']
-    custom_ids = ['Roles', 'Games', 'Bank']
+    main_labels = ('Roles', 'Games', 'Bank')
+    custom_ids = ('Roles', 'Games', 'Bank')
     dropdown = discord.ui.Select(custom_id='helpmenu', placeholder='Select a Menu')
 
     for item in main_labels:
@@ -51,8 +51,8 @@ class miscCog(commands.Cog):
   @commands.command()
   async def role(self, ctx, member: discord.Member=None):
     
-    labels = ['test1', 'test2']
-    ids = ['test1', 'test2']
+    labels = ('test1', 'test2')
+    ids = ('test1', 'test2')
     view = create_buttons(labels=labels, ids=ids)
 
     await ctx.send("Please choose a role: ", view=view)

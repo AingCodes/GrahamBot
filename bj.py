@@ -6,8 +6,8 @@ import players
 from misc import create_buttons
 
 def create_deck(deck_count):
-  ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-  suits = ["♠️", "♥️", "♣️", "♦️"]
+  ranks = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+  suits = ("♠️", "♥️", "♣️", "♦️")
   deck = [rank + suit for rank in ranks for suit in suits for i in range(deck_count)]
   shuffle(deck)
   return deck
@@ -150,8 +150,8 @@ async def run(ctx, bot, game):
   check_for_naturals(game)
 
   # Creates an interactable message that displays all hands 
-  labels = ['Hit', 'Stand', 'Double Down', 'Split', 'Insurance', 'Surrender']
-  ids = ['h', 's', 'd', 'x', 'i', 'ff']
+  labels = ('Hit', 'Stand', 'Double Down', 'Split', 'Insurance', 'Surrender')
+  ids = ('h', 's', 'd', 'x', 'i', 'ff')
   view = create_buttons(ids=ids, labels=labels)
   game.display_message = await ctx.send(f"{create_display_message(game, False)}", view=view)
   
@@ -244,7 +244,7 @@ async def run(ctx, bot, game):
   await refresh_display(game, True)
 
   # Creates a message that shows the results of all hands
-  nth = ['first', 'second', 'third', 'fourth']
+  nth = ('first', 'second', 'third', 'fourth')
 
   results = []
   for player in game.players.values():
@@ -259,11 +259,11 @@ async def run(ctx, bot, game):
 
   # Asks if the player would like to play again
 
-  labels = ['Yes', 'No']
-  ids = ['y', 'n']
+  labels = ('Yes', 'No')
+  ids = ('y', 'n')
   view = create_buttons(labels=labels, ids=ids)
   reset_message = await ctx.send('Would you like to play again?', view=view)
-  
+
   interaction = await bot.wait_for('interaction')
   button_id = interaction.data['custom_id']
 

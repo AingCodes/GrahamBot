@@ -11,6 +11,8 @@ class yahtzeegame:
 
 
 class bjgame:
+  __slots__ = ('id_list', 'deck_count', 'name_list', 'players', 'deck', 'dealer_hand', 'wagers', 'display_message')
+  
   def __init__(self, name_list, id_list, deck_count):
     self.id_list = id_list
     self.deck_count = deck_count
@@ -19,7 +21,6 @@ class bjgame:
     self.deck = bj.create_deck(deck_count)
     self.dealer_hand = hand.hand()
     self.wagers = {}
-    self.display_message = ''
 
   def reshuffle_deck(self):
     self.deck = bj.create_deck(self.deck_count)
