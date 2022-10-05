@@ -1,5 +1,6 @@
 import random
 import discord
+from misc import create_buttons
 
 dice_emojis = {
 
@@ -32,13 +33,11 @@ async def display_dice(player, ctx):
   global dice_emojis
   view = discord.ui.View()
 
-  emoji_list = [dice_emojis[f"{die}h"] if player.held[die_number] else dice_emojis[f"{die}"] for die_number, die in enumerate(player.dice)]
-  custom_ids = ['1', '2', '3', '4', '5']
-  items = [discord.ui.Button(emoji=emoji_list[i], custom_id=custom_ids[i]) for i in range(len(custom_ids))]
-  items.append(discord.ui.Button(label='Roll', custom_id='roll'))
-  for item in items:
-    view.add_item(item)
-
+  emojis = [dice_emojis[f"{die}h"] if player.held[die_number] else dice_emojis[f"{die}"] for die_number, die in enumerate(player.dice)]
+  ids = ['1', '2', '3', '4', '5']
+  view = create_buttons(emojis=emojis, ids=ids)
+  view.add_item(discord.ui.Button(label='Roll', custom_id='roll'))
+  
   return view
 
 async def display_scoresheet(player, ctx):

@@ -6,6 +6,7 @@ import players
 import jsonfuncs
 from ifttt_webhook import IftttWebhook
 from os import getenv
+from misc import create_buttons
 
 async def setup(bot):
   await bot.add_cog(miscCog(bot))
@@ -50,14 +51,9 @@ class miscCog(commands.Cog):
   @commands.command()
   async def role(self, ctx, member: discord.Member=None):
     
-
-    view = discord.ui.View()
     labels = ['test1', 'test2']
-    custom_ids = ['test1', 'test2']
-    items = [discord.ui.Button(label=labels[i], custom_id=custom_ids[i]) for i in range(len(labels))]
-
-    for item in items:
-      view.add_item(item)
+    ids = ['test1', 'test2']
+    view = create_buttons(labels=labels, ids=ids)
 
     await ctx.send("Please choose a role: ", view=view)
     while(True):

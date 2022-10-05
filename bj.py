@@ -3,6 +3,7 @@ import games
 import discord
 import hand
 import players
+from misc import create_buttons
 
 def create_deck(deck_count):
   ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
@@ -148,13 +149,10 @@ async def run(ctx, bot, game):
   # Checks for any natural blackjacks
   check_for_naturals(game)
 
-  # Creates an interactable message that displays all hands
-  view = discord.ui.View() 
+  # Creates an interactable message that displays all hands 
   labels = ['Hit', 'Stand', 'Double Down', 'Split', 'Insurance', 'Surrender']
   ids = ['h', 's', 'd', 'x', 'i', 'ff']
-  items = [discord.ui.Button(label=labels[i], custom_id=ids[i]) for i in range(len(ids))]
-  for item in items:
-    view.add_item(item=item)
+  view = create_buttons(ids=ids, labels=labels)
   game.display_message = await ctx.send(f"{create_display_message(game, False)}", view=view)
   
   # Waits for all players to finish their hand before moving on
@@ -261,14 +259,11 @@ async def run(ctx, bot, game):
 
   # Asks if the player would like to play again
 
-  view = discord.ui.View()
   labels = ['Yes', 'No']
-  custom_ids = ['y', 'n']
-  items = [discord.ui.Button(label=labels[i], custom_id=custom_ids[i]) for i in range(len(labels))]
-  for item in items:
-    view.add_item(item)
-
+  ids = ['y', 'n']
+  view = create_buttons(labels=labels, ids=ids)
   reset_message = await ctx.send('Would you like to play again?', view=view)
+  
   interaction = await bot.wait_for('interaction')
   button_id = interaction.data['custom_id']
 

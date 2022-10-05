@@ -14,10 +14,10 @@ def create_buttons(**kwargs):
   view = discord.ui.View()
   items = [
     discord.ui.Button(
-    custom_id=kwargs['ids'][i],
-    label=kwargs['labels'][i] if kwargs['labels'] else None,
-    emoji=kwargs['emojis'][i] if kwargs['emojis'] else None,
-  ) for i, x in enumerate(kwargs['ids'])
+      custom_id=kwargs['ids'][i],
+      label=kwargs['labels'][i] if kwargs['labels'] else None,
+      emoji=kwargs['emojis'][i] if kwargs['emojis'] else None,
+    ) for i, x in enumerate(kwargs['ids'])
   ]
   for item in items:
     view.add_item(item)

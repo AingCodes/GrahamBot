@@ -3,7 +3,7 @@ from discord.ext import commands
 import games
 import yahtzee
 import players
-from misc import get_name
+from misc import get_name, create_buttons
 
 async def setup(bot):
   await bot.add_cog(yahtzeeCog(bot))
@@ -22,14 +22,9 @@ class yahtzeeCog(commands.Cog):
     game.players[str(ctx.author.id)] = players.yahtzeeplayer(str(ctx.author.id), get_name(ctx.author))
     
     # Creates a message you can interact with to join, start or cancel the game
-    view = discord.ui.View()
     labels = ['Join/Unjoin', 'Start Game', 'Cancel Game']
-    custom_ids = ['join', 'start', 'cancel']
-    items = [discord.ui.Button(label=labels[i], custom_id=custom_ids[i]) for i in range(len(labels))]
-
-    for item in items:
-      view.add_item(item)
-
+    ids = ['join', 'start', 'cancel']
+    view = create_buttons(labels=labels, ids=ids)
     initial_message = await ctx.send(f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}", view=view)
 
     # Waits until the cancel button is hit or 
