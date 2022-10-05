@@ -98,7 +98,7 @@ async def reset_game(ctx, game):
   game.wagers = {}
   game.dealer_hand = hand.hand()
   game.players = {id: players.bjplayer(name, id) for name in game.name_list for id in game.id_list}
-  if len(game.deck) < 15*len(game.players):
+  if len(game.deck) < 20*len(game.players):
     game.reshuffle_deck()
     await ctx.send('Deck was reshuffled!')
 
@@ -134,7 +134,7 @@ async def run(ctx, bot, game):
     wager_msg_content.append(f"{player.name}: {player.bankroll}")
   wager_msg = await ctx.send("\n".join(wager_msg_content))
   await bot.wait_for('command_completion', check = lambda x: len(game.wagers) == len(game.players) or game not in games.game_list)
-  wager_msg.delete()
+  await wager_msg.delete()
   
   # Ends the function if the game was aborted
   if game not in games.game_list:
@@ -279,5 +279,6 @@ async def run(ctx, bot, game):
 
   elif button_id == 'n':
     await reset_message.delete()
-    await interaction.response.send_message('The game has ended.')
+    await interaction.response.defer()
+    await ctx.send('The game has ended.')
     games.game_list.remove(game)
