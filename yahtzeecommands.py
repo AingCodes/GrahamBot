@@ -19,7 +19,7 @@ class yahtzeeCog(commands.Cog):
     game = games.game_list[-1]
 
     # Adds the author of the command to the players
-    game.players[str(ctx.author.id)] = players.yahtzeeplayer(str(ctx.author.id), get_name(ctx.author))
+    game.players.append(players.yahtzeeplayer(str(ctx.author.id), get_name(ctx.author)))
     
     # Creates a message you can interact with to join, start or cancel the game
     labels = ('Join/Unjoin', 'Start Game', 'Cancel Game')
@@ -42,15 +42,16 @@ class yahtzeeCog(commands.Cog):
           await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
           await interaction.response.defer()
         else:
-          game.players[user] = players.yahtzeeplayer(user, nick if nick else name)
+          game.players.append(players.yahtzeeplayer(user, nick if nick else name))
           await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
           await interaction.response.defer()
           
       elif interaction.data['custom_id'] == 'start':
         # Runs the game if the start button is hit
-        await yahtzee.run_game(game, ctx, self.bot)
         await initial_message.delete()
         await interaction.response.defer()
+        await yahtzee.run_game(game, ctx, self.bot)
+        return
         
       elif interaction.data['custom_id'] == 'cancel':
         # Cancels the game if the cancel button is hit

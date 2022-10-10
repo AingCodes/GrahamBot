@@ -7,7 +7,12 @@ all_players = []
 
 class yahtzeegame:
   def __init__(self):
-    self.players = {}
+    self.players = []
+    self.turn = 0
+
+  def increment(self):
+    self.turn += 1
+    self.turn = self.turn % len(self.players)
 
 
 class bjgame:

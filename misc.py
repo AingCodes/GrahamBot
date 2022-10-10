@@ -24,3 +24,19 @@ def create_buttons(**kwargs):
   for item in items:
     view.add_item(item)
   return view
+
+def create_dropdown(**kwargs):
+  view = discord.ui.View()
+  inputs = defaultdict(lambda: None, kwargs)
+  custom_id=inputs['custom_id']
+  placeholder = inputs['placeholder']
+  options=[inputs['options'][i] if inputs['options'] else None for i, x in enumerate(inputs['options'])]
+  
+  dropdown = discord.ui.Select(custom_id=custom_id, placeholder=placeholder)
+  
+  for option in options:
+    dropdown.add_option(label=option)
+    
+  view.add_item(dropdown)
+  return view
+

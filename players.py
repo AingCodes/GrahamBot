@@ -1,6 +1,7 @@
 import random
 import hand
 import jsonfuncs
+from yahtzee import refresh_dice
 
 class yahtzeeplayer:
   __slots__ = ('id', 'name', 'dice', 'held', 'roll_amount', 'active', 'scoresheet')
@@ -13,23 +14,51 @@ class yahtzeeplayer:
     self.roll_amount = 0
     self.active = True
     self.scoresheet = {
-      'Aces': '',
-      'Twos': '', 
-      'Threes': '',
-      'Fours': '',
-      'Fives': '',
-      'Sixes': '',
-      'Total top score': 0,
-      'Bonus': '',
-      'Chance': '',
-      'Three of a Kind': '',
-      'Four of a Kind': '',
-      'Full House': '',
-      'Small Straggot': '',
-      'Large Straggot': '',
-      'Grahamzee': '',
+      'Aces': 0,
+      'Twos': 0, 
+      'Threes': 0,
+      'Fours': 0,
+      'Fives': 0,
+      'Sixes': 0,
+      'Total Top Score': 0,
+      'Bonus': 0,
+      'Chance': 0,
+      'Three of a Kind': 0,
+      'Four of a Kind': 0,
+      'Full House': 0,
+      'Small Straggot': 0,
+      'Large Straggot': 0,
+      'Grahamzee': 0,
       'Total Score': 0,
     }
+
+  async def roll_dice(self, dice_message):
+    for i, x in enumerate(self.dice):
+      if not self.held[i]:
+        self.dice[i] = random.randint(1,6)
+    await refresh_dice(dice_message, self)
+
+  def reset_dice(self):
+    self.held = [False, False, False, False, False]
+    self.dice = [random.randint(1,6) for i in range(5)]
+
+  def check_scores(self):
+    self.scoresheet['Total Top Score'] = 0
+    self.scoresheet['Total Score'] = 0
+    for key, value in self.scoresheet.items():
+      if key == 'Total Top Score':
+        break
+      else:
+        self.scoresheet['Total Top Score'] += 0 if value == '0' else value
+
+    if self.scoresheet['Total Top Score'] > 63:
+      self.scoresheet = 35
+
+    for key, value in self.scoresheet.items():
+      if not key == 'Total Top Score':
+        self.scoresheet['Total Score'] += 0 if value == '0' else value
+        
+      
 
 class bjplayer:
   __slots__ = ('name', 'id', 'hands', 'insured', 'bankroll', 'wager', 'total_bet')

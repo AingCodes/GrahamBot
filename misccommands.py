@@ -19,7 +19,6 @@ class miscCog(commands.Cog):
   async def help(self, ctx):
     view = discord.ui.View()
     main_labels = ('Roles', 'Games', 'Bank')
-    custom_ids = ('Roles', 'Games', 'Bank')
     dropdown = discord.ui.Select(custom_id='helpmenu', placeholder='Select a Menu')
 
     for item in main_labels:
