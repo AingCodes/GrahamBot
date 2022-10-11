@@ -52,7 +52,7 @@ class yahtzeeplayer:
         self.scoresheet['Total Top Score'] += 0 if value == '0' else value
 
     if self.scoresheet['Total Top Score'] > 63:
-      self.scoresheet = 35
+      self.scoresheet['Bonus'] = 35
 
     for key, value in self.scoresheet.items():
       if not key == 'Total Top Score':

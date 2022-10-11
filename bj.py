@@ -28,13 +28,13 @@ def split(hand_to_split, player, game):
   hand_to_split.hand_value()
   player.hands[-1].hand_value()
 
-def check_win(phand, dhand, result=None):
+def check_win(phand, dhand):
+  result = 'lost'
   if phand.value < 22:
     if dhand.value < phand.value or dhand.value > 21:
       result = 'won'
     elif phand.value == dhand.value:
       result = 'pushed'
-  result = 'lost' if not result else result
   return result
 
 def resolve_hand(hand, player, game):
