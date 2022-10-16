@@ -1,9 +1,57 @@
+from logging import handlers
 from random import shuffle
 import games
 import discord
-import hand
 import players
 from misc import create_buttons
+
+from enum import Enum
+
+class Status(Enum):
+  ACTIVE = 0
+  BLACKJACK = 1
+  BUST = 2
+  STAND = 3
+  DOUBLE_DOWN = 4
+  SURRENDER = 5
+
+class Result(Enum):
+  WON = 'won'
+  PUSHED = 'pushed'
+  LOST = 'lost'
+  BLACKJACK = 'got a blackjack'
+  BUST = 'bust'
+  SURRENDER = 'surrendered'
+
+class Hand:
+  __slots__ = ('cards', 'value', 'status')
+
+  def __init__(self):
+    self.cards = []
+    self.status = Status.ACTIVE
+
+  def card_value(self, card_number):
+    rank = self.cards[card_number][:-2]
+    if rank == 'A':
+      value = 11
+    elif rank in ('J', 'Q', 'K'):
+      value = 10
+    else:
+      value = int(rank)
+    return value
+
+  def hand_value(self):
+    value = 0
+    ace_count = 0
+    for card_number, card in enumerate(self.cards):
+      rank = card[:-2]
+      value += self.card_value(card_number)
+      if rank == 'A':
+        ace_count += 1
+    for ace in range(ace_count):
+      if value > 21:
+        value -= 10
+    self.value = value
 
 def create_deck(deck_count):
   ranks = ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
@@ -15,11 +63,10 @@ def create_deck(deck_count):
 def hit(hand, amount, deck):
   hand.cards.extend([deck.pop(0) for i in range(amount)])
   hand.hand_value()
-  return
 
 def split(hand_to_split, player, game):
   # Creates a new hand
-  player.hands.append(hand.hand())
+  player.hands.append(Hand())
   # The new hand contains the 2nd card of the original hand
   player.hands[-1].cards = [hand_to_split.cards[1]]
   # The 2nd card is removed from the original hand
@@ -29,57 +76,50 @@ def split(hand_to_split, player, game):
   player.hands[-1].hand_value()
 
 def check_win(phand, dhand):
-  result = 'lost'
+  result = Result.LOST
   if phand.value < 22:
     if dhand.value < phand.value or dhand.value > 21:
-      result = 'won'
+      result = Result.WON
     elif phand.value == dhand.value:
-      result = 'pushed'
+      result = Result.PUSHED
   return result
 
 def resolve_hand(hand, player, game):
   wager = player.wager
-  if hand.status == 'blackjack':
+  if hand.status is Status.BLACKJACK:
     reward = wager * 3/2
-    result = 'blackjack'
-  elif hand.status == 'bust':
+    result = Result.BLACKJACK
+  elif hand.status is Status.BUST:
     reward = -wager
-    result = 'bust'
-  elif hand.status == 'stand':
-    result = check_win(hand, game.dealer_hand)
-    reward = wager if result in ['won', 'pushed'] else -wager
-  elif hand.status == 'double down':
-    result = check_win(hand, game.dealer_hand)
-    reward = wager*2 if result in ['won', 'pushed'] else -wager*2
-  elif hand.status == 'surrender':
-    result = 'surrendered'
+    result = Result.BUST
+  elif hand.status is Status.SURRENDER:
+    result = Result.SURRENDER
     reward = -wager*0.5
-  player.bankroll += reward if not result == 'pushed' else 0
+  else:
+    multiplier = 1 if hand.status is Status.STAND else 2
+    result = check_win(hand, game.dealer_hand)
+    reward = wager*multiplier if result in (Result.WON, Result.PUSHED) else -wager*multiplier
+  player.bankroll += reward if not result is Result.PUSHED else 0
   player.update_db()
-  return result, reward
-  
-  
-def check_for_naturals(game):
-  for player in game.players.values():
-    if player.hands[0].value == 21:
-      player.hands[0].status = 'blackjack'
+  return result.value, reward
 
 def create_display_message(game, end_of_game):
-  nth = ['first', 'second', 'third', 'fourth']
+  nth = ('first', 'second', 'third', 'fourth')
+  status_display = ('active', 'natural blackjack (auto stood)', 'bust', 'stood', 'doubled down', 'forfeit')
 
   if end_of_game:
     dealer_hand = f"Dealer's hand:\n{'  '.join(game.dealer_hand.cards)}"
   else:
     dealer_hand = f"Dealer's hand:\n{game.dealer_hand.cards[0]}"
     
-  player_hands = '\n\n'.join([f"{player.name}'s {nth[index]} hand: (status: {hand.status}){', insured' if player.insured else ''}\n{'  '.join(hand.cards)}" for player in game.players.values() for index, hand in enumerate(player.hands)])
+  player_hands = '\n\n'.join([f"{player.name}'s {nth[index]} hand: (status: {status_display[hand.status.value]}){', insured' if player.insured else ''}\n{'  '.join(hand.cards)}" for player in game.players.values() for index, hand in enumerate(player.hands)])
   
   return f"{dealer_hand}\n\n{player_hands}"
 
 def game_is_active(game):
   for player in game.players.values():
-    for _hand in player.hands:
-      if _hand.status == 'active':
+    for hand in player.hands:
+      if hand.status is Status.ACTIVE:
         return True
   return False
 
@@ -96,7 +136,7 @@ def check_insurance(player, game):
 
 async def reset_game(ctx, game):
   game.wagers = {}
-  game.dealer_hand = hand.hand()
+  game.dealer_hand = Hand()
   game.players = {id: players.bjplayer(name, id) for name in game.name_list for id in game.id_list}
   if len(game.deck) < 20*len(game.players):
     game.reshuffle_deck()
@@ -114,7 +154,7 @@ async def is_playing(ctx):
   # Exits if they are not
   if not playing_blackjack:
     await ctx.send(f"<@{ctx.author.id}> you are not playing blackjack.")
-    return False, False
+    return False, None
 
   # If they are, returns True along with the game they are playing in
   return True, current_game
@@ -151,7 +191,9 @@ async def run(ctx, bot, game):
     hit(player.hands[0], 2, game.deck)
 
   # Checks for any natural blackjacks
-  check_for_naturals(game)
+  for player in game.players.values():
+    if player.hands[0].value == 21:
+      player.hands[0].status = Status.BLACKJACK
 
   # Creates an interactable message that displays all hands 
   labels = ('Hit', 'Stand', 'Double Down', 'Split', 'Insurance', 'Surrender')
@@ -172,9 +214,9 @@ async def run(ctx, bot, game):
 
     # Grabs the player's first active hand as current_hand
     current_hand = None
-    for _hand in player.hands:
-      if _hand.status == 'active':
-        current_hand = _hand
+    for hand in player.hands:
+      if hand.status is Status.ACTIVE:
+        current_hand = hand
         break
 
     # Ends the interaction if there were no active hands
@@ -186,15 +228,14 @@ async def run(ctx, bot, game):
     if button_id == 'h':
       hit(current_hand, 1, game.deck)
       if current_hand.value > 21:
-        current_hand.status = 'bust'
+        current_hand.status = Status.BUST
       elif current_hand.value == 21:
-        current_hand.status = 'stand'
+        current_hand.status = Status.STAND
       await refresh_display(game)
       await interaction.response.defer()
-      
 
     elif button_id == 's':
-      current_hand.status = 'stand'
+      current_hand.status = Status.STAND
       await refresh_display(game)
       await interaction.response.defer()
 
@@ -205,16 +246,16 @@ async def run(ctx, bot, game):
         await interaction.response.send_message(content='You may only double down on 2 cards', ephemeral=True)
       else:
         hit(current_hand, 1, game.deck)
-        current_hand.status = 'double down'
+        current_hand.status = Status.DOUBLE_DOWN
         await refresh_display(game)
         await interaction.response.defer()
 
     elif button_id == 'x':
       if player.total_bet + player.wager > player.bankroll:
         await interaction.response.send_message(content='You do not have enough Grahams to split', ephemeral=True)
-      elif (not len(current_hand.cards) == 2 
-            or not current_hand.card_value(0) == current_hand.card_value(1)
-            and not current_hand.value == 16
+      elif (not len(current_hand.cards) == 2 or
+            not current_hand.card_value(0) == current_hand.card_value(1) and
+            not current_hand.value == 16
            ):
              await interaction.response.send_message(content='To split, you must have exactly two cards of equal value, or exactly two cards that total to 16.', ephemeral=True)
       elif len(player.hands) > 3:
@@ -237,7 +278,7 @@ async def run(ctx, bot, game):
         await interaction.response.defer()
 
     elif button_id == 'ff':
-      current_hand.status = 'surrender'
+      current_hand.status = Status.SURRENDER
       await refresh_display(game)
       await interaction.response.defer()
 
@@ -254,7 +295,7 @@ async def run(ctx, bot, game):
   for player in game.players.values():
     for index, _hand in enumerate(player.hands):
       result, reward = resolve_hand(_hand, player, game)
-      results.append(f"{player.name}'s {nth[index]} hand {'got a blackjack!' if result == 'blackjack' else result}! {'Won' if result in ('won', 'blackjack') else 'Refunded' if result == 'pushed' else 'Lost'} {-reward if result in ('lost', 'bust', 'surrendered') else reward} Grahams.")
+      results.append(f"{player.name}'s {nth[index]} hand {result}! {'Won' if result in ('won', 'blackjack') else 'Refunded' if result == 'pushed' else 'Lost'} {-reward if result in ('lost', 'bust', 'surrendered') else reward} Grahams.")
     if player.insured:
       result, reward = check_insurance(player, game)
       results.append(f"{player.name}'s insurance bet {result}! {'Won' if result == 'won' else 'lost'} {reward} Grahams!")

@@ -1,6 +1,5 @@
 import players
-import bj
-import hand
+from bj import create_deck, Hand
 from yahtzee import refresh_dice, refresh_scoresheet
 import asyncio
 
@@ -140,9 +139,9 @@ class bjgame:
     self.deck_count = deck_count
     self.name_list = name_list
     self.players = {id_list[i]: players.bjplayer(name_list[i], id_list[i]) for i, x in enumerate(name_list)}
-    self.deck = bj.create_deck(deck_count)
-    self.dealer_hand = hand.hand()
+    self.deck = create_deck(deck_count)
+    self.dealer_hand = Hand()
     self.wagers = {}
 
   def reshuffle_deck(self):
-    self.deck = bj.create_deck(self.deck_count)
+    self.deck = create_deck(self.deck_count)

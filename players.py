@@ -1,5 +1,5 @@
 import random
-import hand
+from bj import Hand, Status
 import jsonfuncs
 from yahtzee import refresh_dice
 
@@ -65,7 +65,7 @@ class bjplayer:
   def __init__(self, name, id):
     self.name = name
     self.id = id
-    self.hands = [hand.hand()]
+    self.hands = [Hand()]
     self.insured = False
     self.bankroll = self.set_bankroll()
 
@@ -82,7 +82,7 @@ class bjplayer:
   def sum(self):
     sum = 0
     for hand in self.hands:
-      if hand.status == 'doubled down':
+      if hand.status is Status.DOUBLE_DOWN:
         sum += self.wager*2
       else:
         sum += self.wager
