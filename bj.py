@@ -96,10 +96,10 @@ def resolve_hand(hand, player, game):
     result = Result.SURRENDER
     reward = -wager*0.5
   else:
-    multiplier = 1 if hand.status is Status.STAND else 2
+    multiplier = 1 if hand.status is Status.STAND else 2 # only other possible status is double down
     result = check_win(hand, game.dealer_hand)
     reward = wager*multiplier if result in (Result.WON, Result.PUSHED) else -wager*multiplier
-  player.bankroll += reward if not result is Result.PUSHED else 0
+  player.bankroll += reward if result is not Result.PUSHED else 0
   player.update_db()
   return result.value, reward
 
