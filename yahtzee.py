@@ -35,7 +35,8 @@ def display_dice(player):
   emojis = [dice_emojis[f"{die}h"] if player.held[die_number] else dice_emojis[f"{die}"] for die_number, die in enumerate(player.dice)]
   ids = ['1', '2', '3', '4', '5']
   view = create_buttons(emojis=emojis, ids=ids)
-  view.add_item(discord.ui.Button(label='Roll', custom_id='roll'))
+  if player.roll_amount < 2:
+    view.add_item(discord.ui.Button(label='Roll', custom_id='roll'))
   
   return f"{player.name}'s dice:", view
 
@@ -45,7 +46,7 @@ def display_scoresheet(player):
     if not value and key not in ("Total Top Score", "Bonus", "Total Score"):
       options.append(key)
     
-  view = create_dropdown(options=options, placeholder="Submit a score", custom_id="scoresheet")
+  view = create_dropdown(options=options, placeholder="Submit a score", custom_id="scoresheet") if options else None
   
   scoresheet = [f"{key}: {value}" for key, value in player.scoresheet.items()]
   scoresheet = '\n'.join(scoresheet)
@@ -73,7 +74,10 @@ async def run_game(game, ctx, bot):
   game.dice_message = await ctx.send(content, view=view)
 
   while game_is_active(game):
-    interaction = await bot.wait_for('interaction')
+    try:
+      interaction = await bot.wait_for('interaction', timeout=3.0)
+    except:
+      continue
     type = interaction.data['component_type']
     id = interaction.data['values'][0] if type == 3 else interaction.data['custom_id']
 
@@ -86,6 +90,9 @@ async def run_game(game, ctx, bot):
       continue
 
     asyncio.create_task(game.resolve_interaction(id, player, type))
+
+  await game.sheet_message.delete()
+  await game.dice_message.edit(content=game.get_results(), view=None)
 
 
 

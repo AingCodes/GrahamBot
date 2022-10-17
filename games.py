@@ -2,6 +2,7 @@ import players
 from bj import create_deck, Hand
 from yahtzee import refresh_dice, refresh_scoresheet
 import asyncio
+import inflect
 
 game_list = []
 all_players = []
@@ -15,6 +16,25 @@ class yahtzeegame:
   def increment(self):
     self.turn += 1
     self.turn = self.turn % len(self.players)
+
+  def get_results(self):
+    scores = [self.players[0]]
+    for player in self.players[1:]:
+      for index, p in enumerate(scores):
+        if player.scoresheet['Total Score'] > p.scoresheet['Total Score']:
+          scores.insert(index, player)
+      if player not in scores:
+        scores.append(player)
+
+    p = inflect.engine()
+    message = [f"In {p.ordinal(i+1)} place: {player.name} with a score of {player.scoresheet['Total Score']} points" for i, player in enumerate(scores)]
+
+    return "\n".join(message)
+
+    
+      
+      
+      
 
   async def resolve_interaction(self, id, player, type):
     if id in self.basic:
@@ -30,14 +50,14 @@ class yahtzeegame:
     elif id == 'Three of a Kind':
       for a in player.dice:
         if player.dice.count(a) >= 3:
-          for b in player.dice:
-            player.scoresheet['Three of a Kind'] += b
-
+          player.scoresheet['Three of a Kind'] += sum(player.dice)
+          break
+            
     elif id == 'Four of a Kind':
       for a in player.dice:
         if player.dice.count(a) >= 4:
-          for b in player.dice:
-            player.scoresheet['Four of a Kind'] += b
+          player.scoresheet['Four of a Kind'] += sum(player.dice)
+          break
 
     elif id == 'Full House':
       for a in player.dice:

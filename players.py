@@ -21,7 +21,7 @@ class yahtzeeplayer:
       'Fives': 0,
       'Sixes': 0,
       'Total Top Score': 0,
-      'Bonus': 0,
+      'Bonus': '0',
       'Chance': 0,
       'Three of a Kind': 0,
       'Four of a Kind': 0,
@@ -37,10 +37,12 @@ class yahtzeeplayer:
       if not self.held[i]:
         self.dice[i] = random.randint(1,6)
     await refresh_dice(dice_message, self)
+    self.roll_amount += 1
 
   def reset_dice(self):
     self.held = [False, False, False, False, False]
     self.dice = [random.randint(1,6) for i in range(5)]
+    self.roll_amount = 0
 
   def check_scores(self):
     self.scoresheet['Total Top Score'] = 0
@@ -55,8 +57,11 @@ class yahtzeeplayer:
       self.scoresheet['Bonus'] = 35
 
     for key, value in self.scoresheet.items():
-      if not key == 'Total Top Score':
+      if not key in ('Total Top Score', 'Total Score'):
         self.scoresheet['Total Score'] += 0 if value == '0' else value
+
+    if not self.scoresheet['Total Top Score']:
+      self.scoresheet['Total Top Score'] = '0'
         
       
 
