@@ -23,11 +23,6 @@ def initial_game_message(game):
   players = [player.name for player in game.players]
   return ', '.join(players)
 
-def roll_dice(player):
-  for die_number, die in enumerate(player.dice):
-    if player.kept[die_number]:
-      player.dice[die_number] = random.randint(1,6)
-
 def display_dice(player):
   global dice_emojis
   view = discord.ui.View()
@@ -38,19 +33,20 @@ def display_dice(player):
   if player.roll_amount < 2:
     view.add_item(discord.ui.Button(label='Roll', custom_id='roll'))
   
-  return f"{player.name}'s dice:", view
+  return f"**{player.name}'s dice:**", view
 
 def display_scoresheet(player):
   options = []
   for key, value in player.scoresheet.items():
-    if not value and key not in ("Total Top Score", "Bonus", "Total Score"):
+    if not value and key not in ("**Total Top Score**", "**Bonus**", "**Total Score**"):
       options.append(key)
     
   view = create_dropdown(options=options, placeholder="Submit a score", custom_id="scoresheet") if options else None
   
   scoresheet = [f"{key}: {value}" for key, value in player.scoresheet.items()]
   scoresheet = '\n'.join(scoresheet)
-  return f"{player.name}'s scoresheet:\n{scoresheet}", view
+  print(view)
+  return f"__**{player.name}'s scoresheet:**__\n{scoresheet}", view
 
 def game_is_active(game):
   for player in game.players:
@@ -59,8 +55,13 @@ def game_is_active(game):
         return True
   return False
 
-async def refresh_scoresheet(sheet_message, player):
-  content, view = display_scoresheet(player)
+async def refresh_scoresheet(sheet_message, player, hide_view = False):
+  if hide_view:
+    content, _ = display_scoresheet(player)
+    view = None
+    print("SETTING VIEW TO NONE")
+  else:
+    content, view = display_scoresheet(player)
   await sheet_message.edit(content=content, view=view)
 
 async def refresh_dice(dice_message, player):
@@ -78,19 +79,19 @@ async def run_game(game, ctx, bot):
       interaction = await bot.wait_for('interaction', timeout=3.0)
     except:
       continue
+
     type = interaction.data['component_type']
     id = interaction.data['values'][0] if type == 3 else interaction.data['custom_id']
-
-    for _player in game.players:
-      if str(interaction.user.id) == _player.id:
-        player = _player
+    
+    for player in game.players:
+      if str(interaction.user.id) == player.id:
+        interactor = player
     await interaction.response.defer()
 
-    if not player == game.players[game.turn]:
-      continue
+    if interactor is game.players[game.turn]:
+      asyncio.create_task(game.resolve_interaction(id, interactor, type))
 
-    asyncio.create_task(game.resolve_interaction(id, player, type))
-
+  asyncio.sleep(3)
   await game.sheet_message.delete()
   await game.dice_message.edit(content=game.get_results(), view=None)
 

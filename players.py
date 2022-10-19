@@ -14,26 +14,26 @@ class yahtzeeplayer:
     self.roll_amount = 0
     self.active = True
     self.scoresheet = {
-      'Aces': 0,
-      'Twos': 0, 
-      'Threes': 0,
-      'Fours': 0,
-      'Fives': 0,
-      'Sixes': 0,
-      'Total Top Score': 0,
-      'Bonus': '0',
-      'Chance': 0,
-      'Three of a Kind': 0,
-      'Four of a Kind': 0,
-      'Full House': 0,
-      'Small Straggot': 0,
-      'Large Straggot': 0,
-      'Grahamzee': 0,
-      'Total Score': 0,
+      'Aces': '',
+      'Twos': '', 
+      'Threes': '',
+      'Fours': '',
+      'Fives': '',
+      'Sixes': '',
+      '**Total Top Score**': 0,
+      '**Bonus**': 0,
+      'Chance': '',
+      'Three of a Kind': '',
+      'Four of a Kind': '',
+      'Full House': '',
+      'Small Straggot': '',
+      'Large Straggot': '',
+      'Grahamzee': '',
+      '**Total Score**': 0,
     }
 
   async def roll_dice(self, dice_message):
-    for i, x in enumerate(self.dice):
+    for i, _ in enumerate(self.dice):
       if not self.held[i]:
         self.dice[i] = random.randint(1,6)
     await refresh_dice(dice_message, self)
@@ -45,23 +45,20 @@ class yahtzeeplayer:
     self.roll_amount = 0
 
   def check_scores(self):
-    self.scoresheet['Total Top Score'] = 0
-    self.scoresheet['Total Score'] = 0
+    self.scoresheet['**Total Top Score**'] = 0
+    self.scoresheet['**Total Score**'] = 0
     for key, value in self.scoresheet.items():
-      if key == 'Total Top Score':
+      if key == '**Total Top Score**':
         break
       else:
-        self.scoresheet['Total Top Score'] += 0 if value == '0' else value
+        self.scoresheet['**Total Top Score**'] += value if value else 0
 
-    if self.scoresheet['Total Top Score'] > 63:
-      self.scoresheet['Bonus'] = 35
+    if self.scoresheet['**Total Top Score**'] >= 63:
+      self.scoresheet['**Bonus**'] = 35
 
     for key, value in self.scoresheet.items():
-      if not key in ('Total Top Score', 'Total Score'):
-        self.scoresheet['Total Score'] += 0 if value == '0' else value
-
-    if not self.scoresheet['Total Top Score']:
-      self.scoresheet['Total Top Score'] = '0'
+      if not key in ('**Total Top Score**', '**Total Score**'):
+        self.scoresheet['**Total Score**'] += value if value else 0
         
       
 

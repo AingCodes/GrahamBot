@@ -34,18 +34,22 @@ class yahtzeeCog(commands.Cog):
       user = str(interaction.user.id)
       nick = interaction.user.nick
       name = interaction.user.name
+      interactor = None
+
+      for player in game.players:
+        if user == player.id:
+          interactor = player
   
       if interaction.data['custom_id'] == 'join':
         # Adds the user to players if they press the join button, or removes them if they were already playing
-        for player in game.players:
-          if user is player.id:
-            game.players.remove(player)
-            await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
-            await interaction.response.defer()
-          else:
-            game.players.append(players.yahtzeeplayer(user, nick if nick else name))
-            await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
-            await interaction.response.defer()
+        if interactor in game.players:
+          game.players.remove(interactor)
+          await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
+          await interaction.response.defer()
+        else:
+          game.players.append(players.yahtzeeplayer(user, nick if nick else name))
+          await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
+          await interaction.response.defer()
           
       elif interaction.data['custom_id'] == 'start':
         # Runs the game if the start button is hit
@@ -61,4 +65,5 @@ class yahtzeeCog(commands.Cog):
         break
 
     await ctx.send('Game cancelled.')
+    await initial_message.delete()
     games.game_list.remove(game)
