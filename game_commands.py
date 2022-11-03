@@ -2,7 +2,7 @@ from discord.ext import commands
 import players
 import yahtzee
 from bj import parse_blackjack_command, bjgame_containing_id
-from misc import get_name, create_buttons, get_from_db, already_playing, intify
+from misc import get_name, create_buttons, get_from_db, already_playing, intify, new_bank
 import games
 
 async def setup(bot):
@@ -73,11 +73,19 @@ class yahtzeeCog(commands.Cog):
     self.bot = bot
 
   @commands.command()
-  async def yahtzee(self, ctx):
+  async def yahtzee(self, ctx, arg):
     # Adds a yahtzee game to the games list and grabs it as the variable game
-    games.game_list.append(games.yahtzeegame())
-    game = games.game_list[-1]
-
+    wager = intify(arg)
+    new_bank(str(ctx.author.id))
+    balance = get_from_db('bank_of_graham.json', str(ctx.author.id))
+    if wager and wager > balance:
+      ctx.send("You do not have enough Grahams to start a game with this wager.")
+      return
+    else:
+      games.game_list.append(games.yahtzeegame())
+      game = games.game_list[-1]
+      game.wager = wager
+    
     # Adds the author of the command to the players
     game.players.append(players.yahtzeeplayer(str(ctx.author.id), get_name(ctx.author)))
     
@@ -85,7 +93,7 @@ class yahtzeeCog(commands.Cog):
     labels = ('Join/Unjoin', 'Start Game', 'Cancel Game')
     ids = ('join', 'start', 'cancel')
     view = create_buttons(labels=labels, ids=ids)
-    initial_message = await ctx.send(f"Yahtzee game started. Current players: {', '.join([player.name for player in game.players])}", view=view)
+    initial_message = await ctx.send(f"Yahtzee game started with wager amount: {wager} Current players: {', '.join([player.name for player in game.players])}", view=view)
 
     # Waits until the cancel button is hit or 
     while game.players:
@@ -104,12 +112,18 @@ class yahtzeeCog(commands.Cog):
         # Adds the user to players if they press the join button, or removes them if they were already playing
         if interactor in game.players:
           game.players.remove(interactor)
-          await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
+          await initial_message.edit(content=f"Yahtzee game started. Current players: {', '.join(player.name for player in game.players)}")
           await interaction.response.defer()
         else:
-          game.players.append(players.yahtzeeplayer(user, nick if nick else name))
-          await initial_message.edit(content=f"Yahtzee game started. Current players: {yahtzee.initial_game_message(game)}")
-          await interaction.response.defer()
+          new_bank(str(ctx.author.id))
+          balance = get_from_db('bank_of_graham.json', str(ctx.author.id))
+          if wager and wager > balance:
+            interaction.response(content="You do not have enough Grahams to join.", ephemeral=True)
+            return
+          else:
+            game.players.append(players.yahtzeeplayer(user, nick if nick else name))
+            await initial_message.edit(content=f"Yahtzee game started. Current players: {', '.join(player.name for player in game.players)}")
+            await interaction.response.defer()
           
       elif interaction.data['custom_id'] == 'start':
         # Runs the game if the start button is hit

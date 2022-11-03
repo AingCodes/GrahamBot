@@ -13,6 +13,7 @@ class yahtzeegame:
     self.players = []
     self.turn = 0
     self.basic = (None, 'Aces', 'Twos', 'Threes', 'Fours', 'Fives', 'Sixes')
+    self.wager = None
 
   def increment(self):
     self.turn += 1
@@ -29,6 +30,7 @@ class yahtzeegame:
 
     p = inflect.engine()
     message = [f"In {p.ordinal(i+1)} place: {player.name} with a score of {player.scoresheet['**Total Score**']} points" for i, player in enumerate(scores)]
+    
 
     return "\n".join(message)
 
@@ -184,8 +186,8 @@ class bjgame:
         await interaction.response.defer()
         continue
 
-      #  Executes the player's request
-      match button_id:
+      # Executes the player's request
+      """match button_id:
         case BJDecision.HIT.value:
           bj.hit(hand, 1, self.deck)
           if hand.value > 21:
@@ -233,7 +235,7 @@ class bjgame:
             player.sum()
 
         case BJDecision.SURRENDER.value:
-          hand.status = BJStatus.SURRENDER
+          hand.status = BJStatus.SURRENDER"""
 
 
       await self.refresh_display()

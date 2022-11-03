@@ -54,6 +54,12 @@ def update_db(file, key, value):
   with open (file, 'w') as f:
     f.write(data)
 
+def new_bank(user):
+  with open("bank_of_graham.json", "r") as f:
+    data = json.load(f)
+    if user not in data:
+      update_db("bank_of_graham.json", user, 1000)
+
 def already_playing(game_list, ids):
   for game in game_list:
     for id in ids:

@@ -41,7 +41,6 @@ def display_scoresheet(player):
   
   scoresheet = [f"{key}: {value}" for key, value in player.scoresheet.items()]
   scoresheet = '\n'.join(scoresheet)
-  print(view)
   return f"__**{player.name}'s scoresheet:**__\n{scoresheet}", view
 
 def game_is_active(game):
@@ -55,7 +54,6 @@ async def refresh_scoresheet(sheet_message, player, hide_view = False):
   if hide_view:
     content, _ = display_scoresheet(player)
     view = None
-    print("SETTING VIEW TO NONE")
   else:
     content, view = display_scoresheet(player)
   await sheet_message.edit(content=content, view=view)
