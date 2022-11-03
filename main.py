@@ -2,9 +2,8 @@ import discord
 from discord.ext import commands
 import asyncio
 import logging
-import jsonfuncs
 from os import getenv
-import misc
+from misc import get_from_db
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,11 +16,10 @@ async def on_ready():
 
 async def main():
   async with bot:
-    token = getenv('TOKEN') if getenv('TOKEN') else jsonfuncs.get_from_db('bot_token.json', 'TOKEN')
+    token = getenv('TOKEN') if getenv('TOKEN') else get_from_db('bot_token.json', 'TOKEN')
       
-    await bot.load_extension('yahtzeecommands')
+    await bot.load_extension('game_commands')
     await bot.load_extension('misccommands')
-    await bot.load_extension('bjcommands')
     await bot.start(token)
     
 

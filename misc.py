@@ -1,25 +1,27 @@
 import discord
 from discord.ext import commands
-from collections import defaultdict
+import json
 
 def get_name(user):
   name = user.nick if user.nick else user.name
   return name
 
-def cvt_member(ctx, tag):
+async def cvt_member(ctx, tag):
   converter = commands.MemberConverter()
-  member = converter.convert(ctx, tag)
+  member = await converter.convert(ctx, tag)
   return member
 
 def create_buttons(**kwargs):
   view = discord.ui.View()
-  inputs = defaultdict(lambda: None, kwargs)
+  for type in ("labels", "emojis"):
+    if not kwargs.get(type):
+      kwargs[type] = (None for _ in kwargs["ids"])
   items = [
     discord.ui.Button(
-      custom_id=inputs['ids'][i],
-      label=inputs['labels'][i] if inputs['labels'] else None,
-      emoji=inputs['emojis'][i] if inputs['emojis'] else None,
-    ) for i, x in enumerate(inputs['ids'])
+      custom_id=custom_id,
+      label=label,
+      emoji=emoji,
+    ) for custom_id, label, emoji in zip(kwargs["ids"], kwargs["labels"], kwargs["emojis"])
   ]
   for item in items:
     view.add_item(item)
@@ -27,10 +29,9 @@ def create_buttons(**kwargs):
 
 def create_dropdown(**kwargs):
   view = discord.ui.View()
-  inputs = defaultdict(lambda: None, kwargs)
-  custom_id=inputs['custom_id']
-  placeholder = inputs['placeholder']
-  options=[inputs['options'][i] if inputs['options'] else None for i, x in enumerate(inputs['options'])]
+  custom_id = kwargs.get("custom_id")
+  placeholder = kwargs.get("placeholder")
+  options = [option for option in kwargs.get("options")]
   
   dropdown = discord.ui.Select(custom_id=custom_id, placeholder=placeholder)
   
@@ -40,3 +41,28 @@ def create_dropdown(**kwargs):
   view.add_item(dropdown)
   return view
 
+def get_from_db(file, key):
+  with open(file, 'r') as f:
+    data = json.load(f)
+  return data[key]
+
+def update_db(file, key, value):
+  with open(file, 'r') as f:
+    data = json.load(f)
+    data[key] = value
+    data = json.dumps(data)
+  with open (file, 'w') as f:
+    f.write(data)
+
+def already_playing(game_list, ids):
+  for game in game_list:
+    for id in ids:
+      if id in game.players:
+        return id
+  return None
+
+def intify(arg):
+  try: 
+    return int(arg)
+  except ValueError:
+    return None

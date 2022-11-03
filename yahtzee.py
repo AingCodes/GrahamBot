@@ -1,4 +1,4 @@
-import random
+from enum import Enum, auto
 import discord
 from misc import create_buttons, create_dropdown
 import asyncio
@@ -18,10 +18,6 @@ dice_emojis = {
   '5h': ("<:5h:1025033788931194991>"),
   '6h': ("<:6h:1025033790906704002>"),
 }
-
-def initial_game_message(game):
-  players = [player.name for player in game.players]
-  return ', '.join(players)
 
 def display_dice(player):
   global dice_emojis

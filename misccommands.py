@@ -1,12 +1,8 @@
 import discord
 from discord.ext import commands
-import games
-import yahtzee
-import players
-import jsonfuncs
 from ifttt_webhook import IftttWebhook
 from os import getenv
-from misc import create_buttons, cvt_member, get_name
+from misc import create_buttons, cvt_member, get_name, get_from_db, update_db
 
 async def setup(bot):
   await bot.add_cog(miscCog(bot))
@@ -90,14 +86,14 @@ class miscCog(commands.Cog):
     user_id = str(member.id if isinstance(member, discord.Member) else ctx.author.id)
     name = get_name(member)
     try:
-      await ctx.send(f"{name}'s balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
+      await ctx.send(f"{name}'s balance is {get_from_db('bank_of_graham.json', user_id)}")
     except:
-      jsonfuncs.update_db('bank_of_graham.json', user_id, 1000)
-      await ctx.send(f"{name}'s balance is {jsonfuncs.get_from_db('bank_of_graham.json', user_id)}")
+      update_db('bank_of_graham.json', user_id, 1000)
+      await ctx.send(f"{name}'s balance is {get_from_db('bank_of_graham.json', user_id)}")
 
   @commands.command()
   async def changelights(self, ctx, colour):
-    webkey = getenv('IFTTT_KEY') if getenv('IFTTT_KEY') else jsonfuncs.get_from_db('bot_token.json', 'IFTTT_KEY')
+    webkey = getenv('IFTTT_KEY') if getenv('IFTTT_KEY') else get_from_db('bot_token.json', 'IFTTT_KEY')
     ifttt = IftttWebhook(webkey)
     ifttt.trigger('changecolour', value1=colour)
     
