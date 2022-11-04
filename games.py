@@ -1,6 +1,6 @@
 from custom_types import BJStatus, BJDecision, BJPlayer, Hand
 from yahtzee import refresh_dice, refresh_scoresheet
-from misc import create_buttons
+from misc import create_buttons, get_from_db, update_db
 import asyncio
 import inflect
 import bj
@@ -30,8 +30,17 @@ class yahtzeegame:
 
     p = inflect.engine()
     message = [f"In {p.ordinal(i+1)} place: {player.name} with a score of {player.scoresheet['**Total Score**']} points" for i, player in enumerate(scores)]
-    
-
+    if self.wager:
+      winnings = 0
+      for player in scores[1:]:
+        winnings += self.wager
+        loserbal = get_from_db("bank_of_graham.json", player.id)
+        loserbal = loserbal - self.wager
+        update_db("bank_of_graham.json", player.id, loserbal)
+      bal = get_from_db("bank_of_graham.json", scores[0].id)
+      bal = bal + winnings
+      update_db("bank_of_graham.json", scores[0].id, bal)
+      message.append(f"{scores[0].name} won {winnings} Grahams! This amount has been added to their balance.")
     return "\n".join(message)
 
   async def resolve_interaction(self, id, player, type):

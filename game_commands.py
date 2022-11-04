@@ -93,7 +93,10 @@ class yahtzeeCog(commands.Cog):
     labels = ('Join/Unjoin', 'Start Game', 'Cancel Game')
     ids = ('join', 'start', 'cancel')
     view = create_buttons(labels=labels, ids=ids)
-    initial_message = await ctx.send(f"Yahtzee game started with wager amount: {wager} Current players: {', '.join([player.name for player in game.players])}", view=view)
+    if wager:
+      initial_message = await ctx.send(f"Yahtzee game started with wager amount: {wager} \n Current players: {', '.join([player.name for player in game.players])}", view=view)
+    else:
+      initial_message = await ctx.send(f"Yahtzee game started with no wager. \n Current players: {', '.join([player.name for player in game.players])}", view=view)
 
     # Waits until the cancel button is hit or 
     while game.players:
