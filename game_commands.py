@@ -4,10 +4,12 @@ import yahtzee
 from bj import parse_blackjack_command, bjgame_containing_id
 from misc import get_name, create_buttons, get_from_db, already_playing, intify, new_bank
 import games
+import wordle
 
 async def setup(bot):
   await bot.add_cog(bjCog(bot))
   await bot.add_cog(yahtzeeCog(bot))
+  await bot.add_cog(wordleCog(bot))
   
 class bjCog(commands.Cog):
   def __init__(self, bot):
@@ -144,3 +146,10 @@ class yahtzeeCog(commands.Cog):
     await ctx.send('Game cancelled.')
     await initial_message.delete()
     games.game_list.remove(game)
+class wordleCog(commands.Cog):
+  def __init__(self, bot):
+    self.bot = bot
+
+  @commands.command()
+  async def wordle(self, ctx):
+    games.game_list.append(wordle.Wordle(wordle.random_answer(), real_words = True).run())

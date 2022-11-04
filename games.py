@@ -4,6 +4,7 @@ from misc import create_buttons, get_from_db, update_db
 import asyncio
 import inflect
 import bj
+import wordle
 
 game_list = []
 all_players = []
@@ -290,3 +291,6 @@ class bjgame:
       await interaction.response.defer()
       await ctx.send('The game has ended.')
       game_list.remove(self)
+
+class wordlegame:
+  
