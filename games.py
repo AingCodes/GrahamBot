@@ -4,7 +4,6 @@ from misc import create_buttons, get_from_db, update_db
 import asyncio
 import inflect
 import bj
-import wordle
 
 game_list = []
 all_players = []
@@ -197,7 +196,7 @@ class bjgame:
         continue
 
       # Executes the player's request
-      """match button_id:
+      match button_id:
         case BJDecision.HIT.value:
           bj.hit(hand, 1, self.deck)
           if hand.value > 21:
@@ -245,7 +244,7 @@ class bjgame:
             player.sum()
 
         case BJDecision.SURRENDER.value:
-          hand.status = BJStatus.SURRENDER"""
+          hand.status = BJStatus.SURRENDER
 
 
       await self.refresh_display()
@@ -291,6 +290,3 @@ class bjgame:
       await interaction.response.defer()
       await ctx.send('The game has ended.')
       game_list.remove(self)
-
-class wordlegame:
-  

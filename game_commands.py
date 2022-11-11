@@ -4,12 +4,11 @@ import yahtzee
 from bj import parse_blackjack_command, bjgame_containing_id
 from misc import get_name, create_buttons, get_from_db, already_playing, intify, new_bank
 import games
-import wordle
 
 async def setup(bot):
   await bot.add_cog(bjCog(bot))
   await bot.add_cog(yahtzeeCog(bot))
-  await bot.add_cog(wordleCog(bot))
+  """await bot.add_cog(wordleCog(bot))"""
   
 class bjCog(commands.Cog):
   def __init__(self, bot):
@@ -18,6 +17,7 @@ class bjCog(commands.Cog):
   @commands.command()
   async def blackjack(self, ctx, *args):
     members, kwargs = await parse_blackjack_command(ctx, args)
+    print(members)
     deck_count = kwargs.get("deck_count")
     print(deck_count)
     names, ids = map(get_name, members), map(lambda x: str(x.id), members)
@@ -73,6 +73,18 @@ class bjCog(commands.Cog):
 class yahtzeeCog(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+
+  @commands.command()
+  async def fill(self, ctx):
+    player = None
+    for game in games.game_list:
+      if isinstance(game, games.yahtzeegame):
+        for player in game.players:
+          if player.id == str(ctx.author.id):
+            for key in player.scoresheet:
+              player.scoresheet[key] = 1
+            return
+    
 
   @commands.command()
   async def yahtzee(self, ctx, arg):
@@ -146,10 +158,26 @@ class yahtzeeCog(commands.Cog):
     await ctx.send('Game cancelled.')
     await initial_message.delete()
     games.game_list.remove(game)
-class wordleCog(commands.Cog):
+
+"""class wordleCog(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    self.wordlemessage = ""
+    self.guessamount = 0
+    self.words = set(line.strip() for line in open('words.txt'))
+    self.word = random.sample(tuple(self.words), 1)
 
   @commands.command()
   async def wordle(self, ctx):
-    games.game_list.append(wordle.Wordle(wordle.random_answer(), real_words = True).run())
+    print(self.word)
+    self.wordlemessage = await ctx.send("Wordle started. Please guess using '.guess <word>'")
+
+  @commands.command()
+  async def guess(self, ctx, guess):
+    self.guessamount += 1
+    if self.guessamount > 0:
+      await self.wordlemessage.edit(content = f"You guessed the word {guess}.")
+    elif self.guessamount == 6:
+      self.wordlemessage = (f"You didn't guess the word. The word was {word}")
+    else:
+      self.wordlemessage = (f"You guessed the word {guess}.")"""

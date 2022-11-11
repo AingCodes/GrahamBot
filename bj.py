@@ -4,7 +4,6 @@ from games import bjgame
 import players
 from misc import cvt_member
 
-"""Module containing the logic for blackjack"""
 
 async def parse_blackjack_command(ctx, args):
   players = [await cvt_member(ctx, str(ctx.author.id))]
