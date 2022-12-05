@@ -1,22 +1,25 @@
 import discord
 from discord.ext import commands
 import json
+from typing import List
 
-def get_name(user):
+def get_name(user) -> str:
   name = user.nick if user.nick else user.name
   return name
 
-async def cvt_member(ctx, tag):
+async def cvt_member(ctx, tag) -> discord.Member:
   converter = commands.MemberConverter()
   member = await converter.convert(ctx, tag)
   return member
 
-def create_buttons(**kwargs):
+def create_buttons(**kwargs) -> discord.ui.View:
   view = discord.ui.View()
   for type in ("labels", "emojis"):
     if not kwargs.get(type):
       kwargs[type] = (None for _ in kwargs["ids"])
-  items = [
+  print(kwargs["ids"])
+  print(kwargs["labels"])
+  items: List[discord.ui.Button] = [
     discord.ui.Button(
       custom_id=custom_id,
       label=label,
@@ -27,13 +30,13 @@ def create_buttons(**kwargs):
     view.add_item(item)
   return view
 
-def create_dropdown(**kwargs):
+def create_dropdown(**kwargs) -> discord.ui.View:
   view = discord.ui.View()
-  custom_id = kwargs.get("custom_id")
+  custom_id = kwargs["custom_id"]
   placeholder = kwargs.get("placeholder")
-  options = [option for option in kwargs.get("options")]
+  options = [option for option in kwargs["options"]]
   
-  dropdown = discord.ui.Select(custom_id=custom_id, placeholder=placeholder)
+  dropdown: discord.ui.Select = discord.ui.Select(custom_id=custom_id, placeholder=placeholder)
   
   for option in options:
     dropdown.add_option(label=option)

@@ -18,7 +18,7 @@ async def main():
   async with bot:
     token = getenv('TOKEN') if getenv('TOKEN') else get_from_db('bot_token.json', 'TOKEN')
       
-    await bot.load_extension('game_commands')
+    await bot.load_extension("games.commands")
     await bot.load_extension('misccommands')
     await bot.start(token)
     
