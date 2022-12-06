@@ -4,14 +4,15 @@ import discord
 from misc import get_name, create_buttons, get_from_db, already_playing, intify, new_bank, cvt_member
 from games.blackjack import BJGame
 from games.yahtzee import YahtzeeGame
+from games.wordle import wordlegame
 import asyncio
 GLOBAL_GAME_LIST: List[Union[BJGame, YahtzeeGame]] = []
 
 async def setup(bot):
   await bot.add_cog(bjCog(bot))
   await bot.add_cog(yahtzeeCog(bot))
-  """await bot.add_cog(wordleCog(bot))"""
-  
+  await bot.add_cog(wordleCog(bot))
+
 class bjCog(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
@@ -111,25 +112,27 @@ class yahtzeeCog(commands.Cog):
       GLOBAL_GAME_LIST.append(game)
       asyncio.create_task(game.run(ctx, self.bot))
 
-"""class wordleCog(commands.Cog):
+class wordleCog(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
-    self.wordlemessage = ""
-    self.guessamount = 0
-    self.words = set(line.strip() for line in open('words.txt'))
-    self.word = random.sample(tuple(self.words), 1)
+    self.game = wordlegame()
 
   @commands.command()
-  async def wordle(self, ctx):
-    print(self.word)
-    self.wordlemessage = await ctx.send("Wordle started. Please guess using '.guess <word>'")
+  async def guess(self, ctx, word_guess: str):
+    print(self.game.word)
+    guess = word_guess.lower()
+    the_answer_letter_list = list(self.game.word)
+    letter_list = list(guess)
 
-  @commands.command()
-  async def guess(self, ctx, guess):
-    self.guessamount += 1
-    if self.guessamount > 0:
-      await self.wordlemessage.edit(content = f"You guessed the word {guess}.")
-    elif self.guessamount == 6:
-      self.wordlemessage = (f"You didn't guess the word. The word was {word}")
+    match_list = [does_shit(i, guess_letter, the_answer_letter_list) for i, guess_letter in enumerate(letter_list)]
+    print(match_list)
+
+
+def does_shit(i, guess_letter, the_answer_letter_list):
+  if guess_letter in the_answer_letter_list:
+    if guess_letter == the_answer_letter_list[i]:
+      return "🟩" 
     else:
-      self.wordlemessage = (f"You guessed the word {guess}.")"""
+      return "🟧"
+  else:
+    return "🟥"

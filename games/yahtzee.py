@@ -146,8 +146,8 @@ class YahtzeeGame:
     content, view = await get_dice(list(self.players.values())[self.turn])
     self.dice_message = await ctx.send(content, view=view)
     
-    while "" not in list(self.players.values())[-1].scoresheet.values():
-      interaction = bot.wait_for("interaction")
+    while "" in list(self.players.values())[-1].scoresheet.values():
+      interaction = await bot.wait_for("interaction")
       id = str(interaction.user.id)
       player = self.players.get(id)
       if list(self.players.values())[self.turn] is not player:
@@ -159,7 +159,7 @@ class YahtzeeGame:
 
       score = 0
       type = interaction.data['component_type']
-      id = int(interaction.data['values'][0]) if type == 3 else int(interaction.data['custom_id'])
+      id = int(SCORESHEET_NAMES.index(interaction.data['values'][0])) if type == 3 else int(interaction.data['custom_id'])
       id = Decision(id)
 
       if id in islice(Decision, 6):
@@ -191,7 +191,7 @@ class YahtzeeGame:
       elif id is Decision.ROLL:
         player.roll(player.held)
       elif id in islice(Decision, 15, 19):
-        player.hold(id - 16)
+        player.hold(id.value - 15)
       
       await interaction.response.defer()
       if id in islice(Decision, 13):

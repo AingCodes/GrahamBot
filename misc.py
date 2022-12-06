@@ -17,8 +17,6 @@ def create_buttons(**kwargs) -> discord.ui.View:
   for type in ("labels", "emojis"):
     if not kwargs.get(type):
       kwargs[type] = (None for _ in kwargs["ids"])
-  print(kwargs["ids"])
-  print(kwargs["labels"])
   items: List[discord.ui.Button] = [
     discord.ui.Button(
       custom_id=custom_id,
